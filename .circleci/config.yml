@@ -79,7 +79,7 @@ jobs:
           command: ssh $SSH_USER@$SSH_HOST "echo $DOCKER_PWD | docker login -u $DOCKER_LOGIN --password-stdin; docker push rankey/$IMAGE_NAME:$TAG"
       - run:
           name: Exec deploy
-          command: ssh $SSH_USER@SSH_HOST "docker stack deploy --compose-file docker-compose.yml ${SERVICE};"
+          command: ssh $SSH_USER@$SSH_HOST "docker stack deploy --compose-file docker-compose.yml ${SERVICE};"
 workflows:
   version: 2
   build_and_deploy:
