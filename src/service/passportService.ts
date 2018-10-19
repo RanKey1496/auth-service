@@ -2,7 +2,8 @@ import { inject } from 'inversify';
 import Types from '../config/types';
 import passport from 'passport';
 import passportFacebookToken from 'passport-facebook-token';
-import { CLIENT_ID_FACEBOOK, CLIENT_SECRET_FACEBOOK } from '../utils/secrets';
+import passportJwt, { Strategy, ExtractJwt } from 'passport-jwt';
+import { CLIENT_ID_FACEBOOK, CLIENT_SECRET_FACEBOOK, SECRET } from '../utils/secrets';
 import { UserRepository } from '../repository/userRepository';
 import { User } from '../model/user';
 import { injectable } from 'inversify';
@@ -19,7 +20,8 @@ export class PassportServiceImp implements PassportService {
     private userRepository: UserRepository;
 
     public async init() {
-        const a = await this.facebookStrategy();
+        await this.facebookStrategy();
+        await this.jwtStrategy();
         return passport.initialize();
     }
 
@@ -49,6 +51,20 @@ export class PassportServiceImp implements PassportService {
         }));
 
         return facebook;
+    }
+
+    public async jwtStrategy() {
+        const jwt = passport.use(new passportJwt({
+            jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+            secretOrKey: SECRET
+        }, async (jwtPayload: any, done: any) => {
+            const user = await this.userRepository.findOneByEmail(jwtPayload.data);
+            if (user) {
+                return done(undefined, user);
+            } else {
+                return done(new Unauthorize('Unable to authorize token'));
+            }
+        }));
     }
 
 }

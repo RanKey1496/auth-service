@@ -39,6 +39,7 @@
     "mysql": "^2.16.0",
     "passport": "^0.4.0",
     "passport-facebook-token": "^3.3.0",
+    "passport-jwt": "^4.0.0",
     "reflect-metadata": "^0.1.12",
     "typeorm": "^0.2.8",
     "winston": "^3.1.0"
@@ -59,6 +60,7 @@
     "@types/node": "^10.12.0",
     "@types/passport": "^0.4.6",
     "@types/passport-facebook-token": "^0.4.33",
+    "@types/passport-jwt": "^3.0.1",
     "chai": "^4.2.0",
     "concurrently": "^4.0.1",
     "jest": "^23.6.0",

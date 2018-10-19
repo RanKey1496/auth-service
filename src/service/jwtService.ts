@@ -5,8 +5,8 @@ import { SECRET_REFRESH } from '../utils/secrets';
 
 export interface JwtService {
     sign(payload: string): any;
-    verifyToken(token: string): string;
-    verifyRefresh(token: string): string;
+    verifyToken(token: string): boolean;
+    verifyRefresh(token: string): boolean;
 }
 
 @injectable()
@@ -18,12 +18,12 @@ export class JwtServiceImp implements JwtService {
         return { token, refreshToken };
     }
 
-    public verifyToken(token: string): string {
-        return this.verify(token, SECRET);
+    public verifyToken(token: string): boolean {
+        return !!this.verify(token, SECRET);
     }
 
-    public verifyRefresh(token: string): string {
-        return this.verify(token, SECRET_REFRESH);
+    public verifyRefresh(token: string): boolean {
+        return !!this.verify(token, SECRET_REFRESH);
     }
 
     private verify(token: string, secret: string): any {
