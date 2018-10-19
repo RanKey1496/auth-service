@@ -1,4 +1,4 @@
-import jwt from 'jsonwebtoken';
+import * as jwt from 'jsonwebtoken';
 import { injectable } from 'inversify';
 import { SECRET } from '../utils/secrets';
 import { SECRET_REFRESH } from '../utils/secrets';

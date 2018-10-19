@@ -2,7 +2,7 @@ import { inject } from 'inversify';
 import Types from '../config/types';
 import passport from 'passport';
 import passportFacebookToken from 'passport-facebook-token';
-import passportJwt, { Strategy, ExtractJwt } from 'passport-jwt';
+import { Strategy, ExtractJwt } from 'passport-jwt';
 import { CLIENT_ID_FACEBOOK, CLIENT_SECRET_FACEBOOK, SECRET } from '../utils/secrets';
 import { UserRepository } from '../repository/userRepository';
 import { User } from '../model/user';
@@ -20,12 +20,28 @@ export class PassportServiceImp implements PassportService {
     private userRepository: UserRepository;
 
     public async init() {
+        await this.serialize();
         await this.facebookStrategy();
         await this.jwtStrategy();
         return passport.initialize();
     }
 
-    public async facebookStrategy() {
+    private async serialize() {
+        passport.serializeUser<any, any>(async (user: User, done: any) => {
+            done(undefined, user.id);
+        });
+
+        passport.deserializeUser(async (id: number, done: any) => {
+            try {
+                const user = await this.userRepository.findById(id);
+                done(undefined, user);
+            } catch (error) {
+                done(new Error('Unable to desealize user'));
+            }
+        });
+    }
+
+    private async facebookStrategy() {
         const facebook = await passport.use(new passportFacebookToken({
             clientID: CLIENT_ID_FACEBOOK,
             clientSecret: CLIENT_SECRET_FACEBOOK,
@@ -53,11 +69,12 @@ export class PassportServiceImp implements PassportService {
         return facebook;
     }
 
-    public async jwtStrategy() {
-        const jwt = passport.use(new passportJwt({
+    private async jwtStrategy() {
+        const jwt = passport.use(new Strategy({
             jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
             secretOrKey: SECRET
         }, async (jwtPayload: any, done: any) => {
+            console.log(jwtPayload);
             const user = await this.userRepository.findOneByEmail(jwtPayload.data);
             if (user) {
                 return done(undefined, user);
