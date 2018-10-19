@@ -68,7 +68,7 @@ jobs:
           command: scp -r ~/service "${SSH_USER}@${SSH_HOST}:~/services/${SERVICE}"
       - run:
           name: Exec deploy
-          command: ssh $SSH_USER@$SSH_HOST "cd ~/services/${SERVICE}; docker build -t auth:1.0.0 .; docker stack deploy --compose-file docker-compose.yml ${SERVICE}"
+          command: ssh $SSH_USER@$SSH_HOST "cd ~/services/${SERVICE}; docker build -t auth:1.0.1 .; docker stack deploy --compose-file docker-compose.yml ${SERVICE}"
           
 workflows:
   version: 2
