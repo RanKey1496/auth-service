@@ -18,7 +18,7 @@ jobs:
           command: npm install
       - run:
           name: Install dependencies
-          command: npm install -g typescript
+          command: npm install -D typescript
       - run:
           name: Run test
           command: npm test
