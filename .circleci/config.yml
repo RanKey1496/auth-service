@@ -1,0 +1,77 @@
+version: 2
+jobs:
+  test:
+    docker:
+      - image: circleci/node:8.9.4
+    working_directory: ~/service
+    steps:
+      - checkout
+      - run:
+          name: Current branch
+          command: echo ${CIRCLE_BRANCH}
+      - restore_cache:
+          keys:
+            - dependencies-cache-{{ checksum "package.json" }}
+            - dependencies-cache
+      - run:
+          name: Install dependencies
+          command: npm install
+      - run:
+          name: Run test
+          command: npm test
+      - save_cache:
+          paths:
+            - node_modules
+          key: dependencies-cache-{{ checksum "package.json" }}
+  build:
+    docker:
+      - image: circleci/node:8.9.4
+    working_directory: ~/service
+    steps:
+      - checkout
+      - restore_cache:
+          keys: 
+            - dist-cache-{{ .Environment.CIRCLE_BRANCH }}-{{ .Environment.CIRCLE_SHA1 }}
+            - dependencies-cache-{{ checksum "package.json" }}
+            - dependencies-cache
+      - run:
+          name: Build files
+          command: npm run build
+      - save_cache:
+          key: dist-cache-{{ .Environment.CIRCLE_BRANCH }}-{{ .Environment.CIRCLE_SHA1 }}
+          paths:
+            - dist
+  deploy:
+    docker:
+      - image: circleci/node:8.9.4
+    working_directory: ~/service
+    steps:
+      - checkout
+      - add_ssh_keys
+      - restore_cache:
+          keys: 
+            - dist-cache-{{ .Environment.CIRCLE_BRANCH }}-{{ .Environment.CIRCLE_SHA1 }}
+      - run:
+          name: Known host
+          command: ssh-keyscan -H $SSH_HOST >> ~/.ssh/known_hosts
+      - run:
+          name: Remove existing files
+          command: ssh $SSH_USER@$SSH_HOST "mkdir -p ~/services; rm -rf ~/services/${SERVICE}"
+      - run:
+          name: Copy build
+          command: scp -r ~/service "${SSH_USER}@${SSH_HOST}:~/services/${SERVICE}"
+      - run:
+          name: Exec deploy
+          command: ssh $SSH_USER@$SSH_HOST "cd ~/services/${SERVICE}; docker build -t auth:1.0.0 .; docker stack deploy --compose-file docker-compose.yml ${SERVICE}"
+          
+workflows:
+  version: 2
+  build_and_deploy:
+    jobs:
+      - test
+      - build:
+          requires:
+            - test
+      - deploy:
+          requires:
+            - build
