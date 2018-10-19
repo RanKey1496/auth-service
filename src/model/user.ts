@@ -1,4 +1,3 @@
-import { UserToken } from './userToken';
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany, JoinColumn } from 'typeorm';
 
 @Entity('User')
@@ -24,9 +23,5 @@ export class User {
 
     @Column()
     public facebookId: string;
-
-    @OneToMany(type => UserToken, type => User)
-    @JoinColumn({ referencedColumnName: 'user_id' })
-    public userToken: UserToken[];
 
 }

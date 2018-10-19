@@ -4,7 +4,6 @@ import passport from 'passport';
 import passportFacebookToken from 'passport-facebook-token';
 import { CLIENT_ID_FACEBOOK, CLIENT_SECRET_FACEBOOK } from '../utils/secrets';
 import { UserRepository } from '../repository/userRepository';
-import { UserToken } from '../model/userToken';
 import { User } from '../model/user';
 import { injectable } from 'inversify';
 import { Unauthorize } from '../utils/exceptions';
@@ -32,35 +31,18 @@ export class PassportServiceImp implements PassportService {
         }, async (accessToken: string, refreshToken: string, profile: any, done: any) => {
             try {
                 const user = await this.userRepository.findOneByEmail(profile._json.email);
-                if (user) {
-                    user.facebookId = profile.id;
-                    const userToken: UserToken = new UserToken();
-                    userToken.userId = user.id;
-                    userToken.token = accessToken;
-                    user.userToken.push(userToken);
-                    done(undefined, await this.userRepository.update(user.id, user));
-                } else {
-                    const user = await this.userRepository.findByFacebookId(profile.id);
-                    if (!user) {
-                        console.log('New user');
-                        const newUser: User = new User();
-                        newUser.email = profile._json.email;
-                        newUser.firstName = profile.name.givenName;
-                        newUser.lastName = profile.name.familyName;
-                        newUser.gender = profile._json.gender;
-                        newUser.picture = `https://graph.facebook.com/${profile.id}/picture?type=large`;
-                        newUser.facebookId = profile.id;
-                        await this.userRepository.save(newUser);
-                        const userToken: UserToken = new UserToken();
-                        userToken.userId = newUser.id;
-                        userToken.token = accessToken;
-                        await this.userRepository.save(newUser);
-                        done(undefined, );
-                    } else {
-                        console.log('Returnin user: ', user);
-                        return done(undefined, user);
-                    }
+                if (!user) {
+                    console.log('New user');
+                    const newUser: User = new User();
+                    newUser.email = profile._json.email;
+                    newUser.firstName = profile.name.givenName;
+                    newUser.lastName = profile.name.familyName;
+                    newUser.gender = profile._json.gender;
+                    newUser.picture = `https://graph.facebook.com/${profile.id}/picture?type=large`;
+                    newUser.facebookId = profile.id;
+                    done(undefined, await this.userRepository.save(newUser));
                 }
+                done(undefined, user);
             } catch (error) {
                 done(new Unauthorize('Invalid user login'));
             }

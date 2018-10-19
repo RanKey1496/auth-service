@@ -1,7 +1,6 @@
 import { ConnectionOptions } from 'typeorm';
 import { DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME, DB_LOGGING } from '../utils/secrets';
 import { User } from '../model/user';
-import { UserToken } from '../model/userToken';
 
 export const dbOptions: ConnectionOptions = {
     type: 'mysql',
@@ -11,8 +10,7 @@ export const dbOptions: ConnectionOptions = {
     password: DB_PASSWORD,
     database: DB_NAME,
     entities: [
-        User,
-        UserToken
+        User
     ],
     logging: DB_LOGGING,
     synchronize: false
