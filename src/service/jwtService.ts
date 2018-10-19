@@ -26,7 +26,7 @@ export class JwtServiceImp implements JwtService {
         return this.verify(token, SECRET_REFRESH);
     }
 
-    private verify(token: string, secret: string): string {
+    private verify(token: string, secret: string): any {
         return jwt.verify(token, secret);
     }
 

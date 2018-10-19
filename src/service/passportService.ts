@@ -33,14 +33,14 @@ export class PassportServiceImp implements PassportService {
             try {
                 const user = await this.userRepository.findOneByEmail(profile._json.email);
                 if (user) {
-                    user.facebookId = Number(profile.id);
+                    user.facebookId = profile.id;
                     const userToken: UserToken = new UserToken();
                     userToken.userId = user.id;
                     userToken.token = accessToken;
                     user.userToken.push(userToken);
                     done(undefined, await this.userRepository.update(user.id, user));
                 } else {
-                    const user = await this.userRepository.findByQuery({ facebookId: Number(profile.id) });
+                    const user = await this.userRepository.findByFacebookId(profile.id);
                     if (!user) {
                         console.log('New user');
                         const newUser: User = new User();
@@ -48,7 +48,14 @@ export class PassportServiceImp implements PassportService {
                         newUser.firstName = profile.name.givenName;
                         newUser.lastName = profile.name.familyName;
                         newUser.gender = profile._json.gender;
-                        done(undefined, await this.userRepository.save(newUser));
+                        newUser.picture = `https://graph.facebook.com/${profile.id}/picture?type=large`;
+                        newUser.facebookId = profile.id;
+                        await this.userRepository.save(newUser);
+                        const userToken: UserToken = new UserToken();
+                        userToken.userId = newUser.id;
+                        userToken.token = accessToken;
+                        await this.userRepository.save(newUser);
+                        done(undefined, );
                     } else {
                         console.log('Returnin user: ', user);
                         return done(undefined, user);

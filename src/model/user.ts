@@ -23,10 +23,10 @@ export class User {
     public picture: string;
 
     @Column()
-    public facebookId: number;
+    public facebookId: string;
 
     @OneToMany(type => UserToken, type => User)
-    @JoinColumn({ referencedColumnName: '' })
+    @JoinColumn({ referencedColumnName: 'user_id' })
     public userToken: UserToken[];
 
 }

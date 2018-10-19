@@ -19,4 +19,8 @@ export class UserRepository extends GenericRepositoryImp<User> {
         return await this.userRepository.findOne({ email });
     }
 
+    public async findByFacebookId(facebookId: string): Promise<User> {
+        return await this.userRepository.findOne({ facebookId });
+    }
+
 }
