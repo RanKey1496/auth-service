@@ -1,7 +1,7 @@
 version: '3'
 services:
   started:
-    image: auth:1.0.1
+    image: rankey/auth:latest
     ports:
       - 3500
     deploy:
