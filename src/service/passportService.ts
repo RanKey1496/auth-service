@@ -75,7 +75,12 @@ export class PassportServiceImp implements PassportService {
         }, async (jwtPayload: any, done: any) => {
             const user = await this.userRepository.findOneByEmail(jwtPayload.data);
             if (user) {
-                return done(undefined, { firstName: user.firstName, lastName: user.lastName, picture: user.picture });
+                return done(undefined, {
+                    email: user.email,
+                    firstName: user.firstName,
+                    lastName: user.lastName,
+                    picture: user.picture
+                });
             } else {
                 return done(new Unauthorize('Unable to authorize token'));
             }

@@ -10,7 +10,7 @@ function data(code: number, success: boolean, message: string) {
 }
 
 export function dataResponse(res: Response, data: any) {
-    return res.status(httpStatus.OK).json({ data });
+    return res.status(httpStatus.OK).json( data );
 }
 
 export function notFoundResponse(res: Response, message: string) {
