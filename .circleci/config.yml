@@ -17,6 +17,9 @@ jobs:
           name: Install dependencies
           command: npm install
       - run:
+          name: Install dependencies
+          command: npm install -g typescript
+      - run:
           name: Run test
           command: npm test
       - save_cache:
@@ -34,6 +37,9 @@ jobs:
             - dist-cache-{{ .Environment.CIRCLE_BRANCH }}-{{ .Environment.CIRCLE_SHA1 }}
             - dependencies-cache-{{ checksum "package.json" }}
             - dependencies-cache
+      - run:
+          name: Install dependencies
+          command: npm install
       - run:
           name: Build files
           command: npm run build
