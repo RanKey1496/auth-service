@@ -17,7 +17,6 @@ export class AuthController implements RegistrableController {
             .post(passport.authenticate('facebook-token', { scope: ['email', 'public_profile'], session: false }),
                 async (req: Request, res: Response, next: NextFunction) => {
                 try {
-                    console.log(req.body);
                     const jwt = await this.jwtService.sign(req.user.email);
                     return dataResponse(res, jwt);
                 } catch (error) {
