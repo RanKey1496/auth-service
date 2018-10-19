@@ -50,7 +50,6 @@ export class PassportServiceImp implements PassportService {
             try {
                 const user = await this.userRepository.findOneByEmail(profile._json.email);
                 if (!user) {
-                    console.log('New user');
                     const newUser: User = new User();
                     newUser.email = profile._json.email;
                     newUser.firstName = profile.name.givenName;
@@ -74,10 +73,14 @@ export class PassportServiceImp implements PassportService {
             jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
             secretOrKey: SECRET
         }, async (jwtPayload: any, done: any) => {
-            console.log(jwtPayload);
             const user = await this.userRepository.findOneByEmail(jwtPayload.data);
             if (user) {
-                return done(undefined, user);
+                return done(undefined, {
+                    email: user.email,
+                    firstName: user.firstName,
+                    lastName: user.lastName,
+                    picture: user.picture
+                });
             } else {
                 return done(new Unauthorize('Unable to authorize token'));
             }

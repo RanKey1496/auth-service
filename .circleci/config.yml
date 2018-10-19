@@ -17,6 +17,9 @@ jobs:
           name: Install dependencies
           command: npm install
       - run:
+          name: Install dependencies
+          command: npm install -D typescript
+      - run:
           name: Run test
           command: npm test
       - save_cache:
@@ -35,6 +38,9 @@ jobs:
             - dependencies-cache-{{ checksum "package.json" }}
             - dependencies-cache
       - run:
+          name: Install dependencies
+          command: npm install
+      - run:
           name: Build files
           command: npm run build
       - save_cache:
@@ -51,6 +57,11 @@ jobs:
       - restore_cache:
           keys: 
             - dist-cache-{{ .Environment.CIRCLE_BRANCH }}-{{ .Environment.CIRCLE_SHA1 }}
+      - run: 
+          name: Setup env
+          command: |
+            echo 'export TAG=0.1.${CIRCLE_BUILD_NUM}' >> $BASH_ENV
+            echo 'export IMAGE_NAME=auth' >> $BASH_ENV
       - run:
           name: Known host
           command: ssh-keyscan -H $SSH_HOST >> ~/.ssh/known_hosts
@@ -61,9 +72,14 @@ jobs:
           name: Copy build
           command: scp -r ~/service "${SSH_USER}@${SSH_HOST}:~/services/${SERVICE}"
       - run:
+          name: Build image
+          command: ssh $SSH_USER@$SSH_HOST "cd ~/services/${SERVICE}; docker build -t rankey/$IMAGE_NAME:$TAG .;"
+      - run:
+          name: Push to dockerhub
+          command: ssh $SSH_USER@$SSH_HOST "echo $DOCKER_PWD | docker login -u $DOCKER_LOGIN --password-stdin; docker push rankey/$IMAGE_NAME:$TAG"
+      - run:
           name: Exec deploy
-          command: ssh $SSH_USER@$SSH_HOST "cd ~/services/${SERVICE}; docker build -t auth:1.0.0 .; docker stack deploy --compose-file docker-compose.yml ${SERVICE}"
-          
+          command: ssh $SSH_USER@$SSH_HOST "cd ~/services/${SERVICE}; docker stack deploy --compose-file docker-compose.yml ${SERVICE};"
 workflows:
   version: 2
   build_and_deploy:

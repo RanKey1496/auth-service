@@ -1,10 +1,10 @@
 version: '3'
 services:
   started:
-    build: auth:1.0.0
+    image: rankey/auth:latest
     ports:
       - 3500
     deploy:
       labels:
-        - "traefik.backend=started"
+        - "traefik.backend=auth"
         - "traefik.frontend.rule=Host:auth.devcrew.com.co"
