@@ -14,21 +14,21 @@ export function dataResponse(res: Response, data: any) {
 }
 
 export function notFoundResponse(res: Response, message: string) {
-    return res.status(httpStatus.NOT_FOUND).json(message);
+    return res.status(httpStatus.NOT_FOUND).json({ error: message });
 }
 
 export function badRequestResponse(res: Response, message: string) {
-    return res.status(httpStatus.BAD_REQUEST).json(message);
+    return res.status(httpStatus.BAD_REQUEST).json({ error: message });
 }
 
 export function unauthorizeResponse(res: Response, message: string) {
-    return res.status(httpStatus.UNAUTHORIZED).json(message);
+    return res.status(httpStatus.UNAUTHORIZED).json({ error: message });
 }
 
 export function conflictResponse(res: Response, message: string) {
-    return res.status(httpStatus.CONFLICT).json(message);
+    return res.status(httpStatus.CONFLICT).json({ error: message });
 }
 
 export function internalResponse(res: Response) {
-    return res.status(httpStatus.INTERNAL_SERVER_ERROR).json('Internal server error, try again later');
+    return res.status(httpStatus.INTERNAL_SERVER_ERROR).json({ error: 'Internal server error, try again later' });
 }
